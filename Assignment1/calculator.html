@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <input type="text" id="display" value="0" disabled />
+            <button class="btn btn-symbol" data-op="CE">CE</button>
+            <div></div>
+            <div></div>
+            <button class="btn btn-symbol" data-op="/">/</button>
+            <button class="btn btn-numeric">4</button>
+            <button class="btn btn-numeric">1</button>
+            <button class="btn btn-numeric">8</button>
+            <button class="btn btn-symbol" data-op="*">X</button>
+
+            <button class="btn btn-numeric">5</button>
+            <button class="btn btn-numeric">2</button>
+            <button class="btn btn-numeric">9</button>
+            <button class="btn btn-symbol" data-op="-">-</button>
+
+            <button class="btn btn-numeric" >3</button>
+            <button class="btn btn-numeric" >7</button>
+            <button class="btn btn-numeric" >0</button>
+            <button class="btn btn-symbol" data-op="+">+</button>
+
+            <div></div>
+            <button class="btn btn-numeric">6</button>
+            <button class="btn  btn-symbol">.</button>
+            <button class="btn btn-symbol" data-op="=">=</button>
+
+        </div>
+        <div class="history">
+            <div class="row">
+                <h2 class="history_header">History</h2>
+                <div class="history-item">45 ÷ 4<br><strong>11.25</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/events.js"></script>
+</body>
+</html>
