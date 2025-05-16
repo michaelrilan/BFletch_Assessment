@@ -144,4 +144,5 @@ if (key === '.') {
     }
 
 if (key === 'Escape') resetCalculator();
+
 });
