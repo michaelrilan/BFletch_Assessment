@@ -64,3 +64,20 @@ body{
     margin-bottom: 12px;
     
 }
+
+@media (max-width: 768px) {
+    
+  .history, .hist_container, .hist_op{
+    display: none;
+  }
+
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .calculator {
+    width: 100%;
+    max-width: 400px;
+  }
+}
