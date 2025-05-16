@@ -1,6 +1,8 @@
 const display = document.getElementById('display');
 const numericButtons = document.querySelectorAll('.btn-numeric');
 const operationButtons = document.querySelectorAll('.btn-symbol');
+let historyDict = {};
+const historyContainer = document.querySelector('.hist_container');
 
 let operand1 = null;
 let operand2 = null;
@@ -17,6 +19,20 @@ btn.textContent = value;
 btn.dataset.value = value;
 btn.addEventListener('click', () => handleNumericClick(value));
 });
+
+
+const addToHistory = (expression, result) => {
+    const timestamp = new Date().toISOString(); // ISO format for proper sorting
+    historyDict[timestamp] = { expression, result };
+
+    const historyItem = document.createElement('li');
+    historyItem.className = 'hist_op';
+    historyItem.textContent = `${expression} = ${result}`;
+
+    // Insert at the top of the container
+    historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+    console.log(historyDict);
+};
 
 
 const handleNumericClick = (num) => {
@@ -53,17 +69,30 @@ const op = btn.dataset.op;
 btn.addEventListener('click', () => {
     if (op === 'CE') return resetCalculator();
 
+    if (op === '.') {
+            const parts = display.value.split(/[\+\-\*\/%]/);
+            const currentPart = parts[parts.length - 1];
+            if (!currentPart.includes('.')) {
+                display.value += '.';
+                shouldResetInput = false;
+            }
+            return;
+        }
     
     if (op === '=') {
     if (operand1 !== null && operator) {
         const currentParts = display.value.split(operator);
         operand2 = parseFloat(currentParts[1]);
         const result = calculate(operand1, operand2, operator);
-        display.value = `${operand1} ${operator} ${operand2} = ${result}`;
+        // display.value = `${operand1} ${operator} ${operand2} = ${result}`;
+        display.value = `${result}`;
+        const expression = `${operand1} ${operator} ${operand2}`;
+        addToHistory(expression, result);
         operand1 = result;
         operand2 = null;
         operator = null;
         shouldResetInput = true;
+        
     }
     return;
     }
@@ -96,6 +125,8 @@ if (key === '=' || key === 'Enter') {
     const result = calculate(operand1, operand2, operator);
     // display.value = `${operand1} ${operator} ${operand2} = ${result}`;
     display.value = `${result}`;
+    const expression = `${operand1} ${operator} ${operand2}`;
+    addToHistory(expression, result);
     operand1 = result;
     operator = null;
     operand2 = null;
@@ -103,13 +134,14 @@ if (key === '=' || key === 'Enter') {
     }
 }
 
-if (key === 'Backspace') {
-    if (display.value.length === 1 || (display.value.length === 2 && display.value.startsWith('-'))) {
-      display.value = '0';
-    } else {
-      display.value = display.value.slice(0, -1);
+if (key === '.') {
+        const parts = display.value.split(/[\+\-\*\/%]/);
+        const currentPart = parts[parts.length - 1];
+        if (!currentPart.includes('.')) {
+            display.value += '.';
+            shouldResetInput = false;
+        }
     }
-  }
 
 if (key === 'Escape') resetCalculator();
 });
