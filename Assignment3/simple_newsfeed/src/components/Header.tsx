@@ -37,19 +37,19 @@ const Header = () => {
           >
             
             <Image
-              src= {userDataGet?.profilePic}
+              src= {userDataGet?.profilePic || "https://storage.googleapis.com/bluefletch-learning-assignment.appspot.com/profilepics/bfdefault.png"}
               alt='Logo'
               roundedCircle
               width={40}
               height={40}
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", border:"1px solid white"}}
             />
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {/* <Dropdown.Item as="span">
+            <Dropdown.Item as="span">
               <Link to="/updateprofile" className="dropdown-item">Update Avatar</Link>
-            </Dropdown.Item> */}
+            </Dropdown.Item>
             <Dropdown.Item as="span">
               <a className="dropdown-item" onClick={logOut}>Logout</a>
             </Dropdown.Item>

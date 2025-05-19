@@ -1,4 +1,4 @@
-
+/* 
 .login-wrapper {
     display: flex;
     justify-content: center;
@@ -28,3 +28,9 @@
   .login-button {
     width: 100%;
   }
+*/
+  .photo{
+    height: 400px;
+    width: 400px;
+    object-fit: cover;
+  } 

@@ -53,37 +53,22 @@ export const createPostApi = async (
 };
 
 
-// export const createCommentApi = async (
-//   text: string, postId: string
-// ) => {
-//   try {
-//     const token = localStorage.getItem("token");
-//     const data = await axios.post<CreatePost>(api + `feed/${postId}/comment`, {
-//       POST_ID: `${postId}`,
-//       text: text
-//     }, {
-//       headers: {
-//         Authorization: `${token}`
-//       }
-//     });
-//     return data;
-//   } catch (error) {
-//     handleError(error);
-//   }
-// };
 
 export const createCommentApi = async(text: string, postId: string)=>{
     try {
     const token = localStorage.getItem("token");
     const data = await axios.post<CreateComment>(api + `feed/${postId}/comment`, {
-      POST_ID: `${postId}`,
+      // POST_ID: `${postId}`,
+      POST_ID: postId,
+
       text: text
     }, {
       headers: {
-        Authorization: `${token}`
+        // Authorization: `${token}`
+        Authorization: token
+
       }
     });
-    console.log(data);
     return data;
   } catch (error) {
     handleError(error);

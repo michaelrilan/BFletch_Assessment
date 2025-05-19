@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SeeMoreText from "../components/SeeMoreText";
+import CommentSection from "../components/CommentSection";
 
 type CreatePostInputs = {
   postContent: string;
@@ -21,6 +22,7 @@ const validation = Yup.object().shape({
 
 const Home = () => {
   const [expanded, setExpanded] = useState(false);
+  const [paginationClicked, setPaginationClicked] = useState(false);
   const [commentText, setCommentText] = useState('');
   const {register, handleSubmit,reset, formState: { errors },} = useForm<CreatePostInputs>({ resolver: yupResolver(validation) });
   const [postValues, setpostValues] = useState<PostGet[] | null>([]);
@@ -30,7 +32,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userDataGet, setuserDataGet] = useState<UserDataGet | null>();
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 100;
+  const postsPerPage = 50;
 
   
   // Get the User's Fullname
@@ -38,16 +40,16 @@ const Home = () => {
     getUserData();
   }, []);
 
-  // Get the User's Fullname
+  // Get the Posts
   useEffect(() => {
     getPosts();
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to page 1 on filter change
+    setCurrentPage(1); 
   }, [debouncedAuthor]);
 
-  // Debounce author filter input with 2 seconds delay
+
   useEffect(() => {
     setIsLoading(true);
     const handler = setTimeout(() => {
@@ -57,34 +59,46 @@ const Home = () => {
     return () => clearTimeout(handler);
   }, [authorFilter]);
 
-  
+
+  useEffect(() => {
+  if (paginationClicked) {
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+      setPaginationClicked(false); 
+    }, 300); 
+
+    return () => clearTimeout(timeout);
+  }
+}, [currentPage, paginationClicked]);
+
+
   // Fetch all posts
   const getPosts = () => {
-    postGetApi()
-      .then((res) => {
-        if (res?.data) {
-          // setpostValues(res?.data);
-          setpostValues(
-            res?.data.map((post) => ({
-              ...post,
-              comments: Array.isArray(post.comments) ? post.comments : [],
-            })),
-          );
-          console.log(res.data);
-          setTimeout(() => {
-            setDebouncedAuthor(authorFilter.trim());
-            setIsLoading(false);
-          }, 2000);
-        }
-      })
-      .catch((e) => {
+  setIsLoading(true);
+  postGetApi()
+    .then((res) => {
+      if (res?.data) {
+        setpostValues(
+          res?.data.map((post) => ({
+            ...post,
+            comments: Array.isArray(post.comments) ? post.comments : [],
+          })),
+        );
+      } else {
         setpostValues(null);
-        setTimeout(() => {
-          setDebouncedAuthor(authorFilter.trim());
-          setIsLoading(false);
-        }, 2000);
-      });
-  };
+      }
+    })
+    .catch(() => {
+      setpostValues(null);
+    })
+    .finally(() => {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 0);
+    });
+};
+
 
   
   const getUserData = () => {
@@ -98,12 +112,14 @@ const Home = () => {
         setuserDataGet(null);
       });
   };
+  
   const handleCreatePost = (form: CreatePostInputs) => {
     setIsLoading(true);
     createPostApi(form.postContent)
       .then((res) => {
         if (res?.status === 200) {
           toast.success("New Post Created!");
+          setCurrentPage(1);
           getPosts();
           reset();
         }
@@ -227,12 +243,12 @@ const Home = () => {
                     <strong>
                       <span className='m-2'>
                         <Image
-                          src={post.user.profilePic || "#"} // fallback to '#' if no profilePic
+                          src={userDataGet?.username === post.user.username ? userDataGet?.profilePic : 'https://storage.googleapis.com/bluefletch-learning-assignment.appspot.com/profilepics/bfdefault.png'}
                           alt='Logo'
                           roundedCircle
                           width={40}
                           height={40}
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "cover" , border:"1px solid blue"}}
                         />
                       </span>
                       {post.user.username}
@@ -249,69 +265,11 @@ const Home = () => {
 
                   {/* Comments */}
                   <hr />
-                  <div>
-                    <p className='text-gray'>Comments</p>
-                    {(post.comments || []).map((comment) => (
-                      <div className='m-3' key={comment.id}>
-                        <strong>{comment.username}</strong>{" "}
-                        <small className='text-muted'>
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </small>
-                        <p className='mb-2'>{comment.text}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Add Comment */}
-                    <div className='mt-3 d-flex align-items-start gap-2'>
-                      {/* Profile Picture */}
-                      <Image
-                        src={userDataGet?.profilePic || "#"}
-                        alt='Profile'
-                        roundedCircle
-                        width={35}
-                        height={35}
-                        style={{ objectFit: "cover", marginTop: "5px" }}
-                      />
-
-                      {/* Textarea */}
-                      <Form.Group
-                        controlId={`commentText-${post.id}`}
-                        className='flex-grow-1'
-                      >
-                        <textarea
-                          rows={1}
-                          placeholder='Write a comment...'
-                          className='w-100 form-control'
-                          id={`commentText-${post.id}`}
-                          onChange={(e) => setCommentText(e.target.value)}
-                        />
-                      </Form.Group>
-
-                      {/* Submit Button */}
-                      <Button
-                        id="comment_id"
-                        variant='primary'
-                        style={{ height: "fit-content", marginTop: "5px" }}
-                        onClick={() => createCommentApi(commentText, `${post.id}`)}
-                        // disabled={loading_comm}
-                      >
-                        {/* {loading_comm ? <Spinner animation='border' size='sm' /> :  */}
-                          <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='16'
-                          height='16'
-                          fill='currentColor'
-                          className='bi bi-send'
-                          viewBox='0 0 16 16'
-                        >
-                          <path d='M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z' />
-                        </svg>
-                        {/*  } */}
-                        
-                      </Button>
-                    </div>
-      
+                  <CommentSection
+                    comments={post.comments || []} 
+                    postId={post.id}
+                    userprofilePic={userDataGet?.profilePic || '#'}
+                  />
                 </Card.Body>
               </Card>
             </Container>
@@ -325,11 +283,14 @@ const Home = () => {
               <button
                 key={index}
                 className={`btn mx-1 ${
-                  currentPage === index + 1
-                    ? "btn-primary"
-                    : "btn-outline-primary"
+                  currentPage === index + 1 ? "btn-primary" : "btn-outline-primary"
                 }`}
-                onClick={() => setCurrentPage(index + 1)}
+                onClick={() => {
+                  setPaginationClicked(true);
+                  setIsLoading(true);
+                  setCurrentPage(index + 1);
+                  window.scrollTo({ top: 0, behavior: 'auto' });
+                }}
               >
                 {index + 1}
               </button>

@@ -1,10 +1,7 @@
 
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Outlet } from "react-router";
-import { ToastContainer as BootstrapToastContainer } from 'react-bootstrap';
 import { ToastContainer as ToastifyContainer } from 'react-toastify';
 import { UserProvider } from "./context/useAuth";
 // import UpdateProfile from "./pages/UpdateProfile";

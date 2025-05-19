@@ -7,16 +7,18 @@ import Header from "../components/Header";
 import type { PostGet, UserDataGet } from "../models/Home";
 import { postGetApi, userDataGetApi } from "../services/HomeService";
 import SeeMoreText from "../components/SeeMoreText";
+import CommentSection from "../components/CommentSection";
 
 const Home = () => {
   const [postValues, setpostValues] = useState<PostGet[] | null>([]);
+  const [paginationClicked, setPaginationClicked] = useState(false);
   const [authorFilter, setAuthorFilter] = useState("");
   const [limit, setLimit] = useState("All");
   const [debouncedAuthor, setDebouncedAuthor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userDataGet, setuserDataGet] = useState<UserDataGet | null>();
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 100;
+  const postsPerPage = 50;
 
 
   // Get the User's Fullname
@@ -42,6 +44,19 @@ const Home = () => {
     }, 2000);
     return () => clearTimeout(handler);
   }, [authorFilter]);
+
+  useEffect(() => {
+  if (paginationClicked) {
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+      setPaginationClicked(false); // reset flag
+    }, 300); // adjust if needed
+
+    return () => clearTimeout(timeout);
+  }
+}, [currentPage, paginationClicked]);
+
 
   // Fetch all posts
   const getPosts = () => {
@@ -147,24 +162,6 @@ const Home = () => {
           </Card>
         </Container>
 
-        {/* <Container className='my-3'>
-        <Card className='p-3 shadow-sm border rounded'>
-          <Form>
-            <Form.Group controlId='postText'>
-              <Form.Control
-                as='textarea'
-                rows={2}
-                placeholder="What's on your mind?"
-              />
-            </Form.Group>
-            <div className='mt-2 text-end'>
-              <Button variant='primary' type='submit'>
-                Post
-              </Button>
-            </div>
-          </Form>
-        </Card>
-      </Container> */}
 
         {/* Show loader while debounce waiting */}
         {isLoading && (
@@ -196,7 +193,7 @@ const Home = () => {
                           roundedCircle
                           width={40}
                           height={40}
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "cover",border:"1px solid blue" }}
                         />
                       </span>
                       {post.user.username}
@@ -213,7 +210,12 @@ const Home = () => {
 
                   {/* Comments */}
                   <hr />
-                  <div>
+                  <CommentSection
+                    comments={post.comments || []} 
+                    postId={post.id}
+                    userprofilePic={userDataGet?.profilePic || '#'}
+                  />
+                  {/* <div>
                     <p className='text-gray'>Comments</p>
                     {(post.comments || []).map((comment) => (
                       <div className='m-3' key={comment.id}>
@@ -224,7 +226,8 @@ const Home = () => {
                         <p className='mb-2'>{comment.text}</p>
                       </div>
                     ))}
-                  </div>
+                    
+                  </div> */}
 
                   {/* Add Comment */}
                   {/* 
@@ -250,20 +253,26 @@ const Home = () => {
 
         {!isLoading && filteredPosts?.length > postsPerPage && (
         <div className='text-center my-4'>
-          {Array.from({
-            length: Math.ceil(filteredPosts?.length / postsPerPage),
-          }).map((_, index) => (
-            <button
-              key={index}
-              className={`btn mx-1 ${
-                currentPage === index + 1 ? "btn-primary" : "btn-outline-primary"
-              }`}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+            {Array.from({
+              length: Math.ceil(filteredPosts?.length / postsPerPage),
+            }).map((_, index) => (
+              <button
+                key={index}
+                className={`btn mx-1 ${
+                  currentPage === index + 1 ? "btn-primary" : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setPaginationClicked(true);
+                  setIsLoading(true);
+                  setIsLoading(true);
+                  setCurrentPage(index + 1);
+                  window.scrollTo({ top: 0, behavior: 'auto' });
+                }}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
       )}
         <Footer />
       </div>

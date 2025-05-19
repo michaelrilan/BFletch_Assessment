@@ -42,7 +42,7 @@ const Header = () => {
               roundedCircle
               width={40}
               height={40}
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", border:"1px solid white"}}
             />
           </Dropdown.Toggle>
 
