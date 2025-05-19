@@ -1,0 +1,12 @@
+/* Ensure the body and root take full height */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make the main content take available space */
+.main-content {
+  flex: 1;
+}
