@@ -93,7 +93,7 @@ const Home = () => {
       if (!debouncedAuthor) return true;
       const usName =
         `${post.user.username}`.toLowerCase();
-      return usName === debouncedAuthor.toLowerCase();
+      return usName.includes(debouncedAuthor.toLowerCase());
     })
     .sort(
       (a, b) =>
@@ -136,7 +136,7 @@ const Home = () => {
                 <Form.Label>Filter by Author</Form.Label>
                 <Form.Control
                   type='text'
-                  placeholder='Enter author name (exact match)'
+                  placeholder='Enter author name (username)'
                   value={authorFilter}
                   onChange={(e) => setAuthorFilter(e.target.value)}
                 />
