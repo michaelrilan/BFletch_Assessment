@@ -1,4 +1,3 @@
-/** @format */
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -129,6 +128,7 @@ const Home = () => {
       }).finally(() =>
          setIsLoading(false));
   };
+
   // Filter and sort posts before rendering
   const filteredPosts = (postValues ?? [])
     ?.filter((post: { id: string }) => post.id !== "-MfANAcdZpCN4tXdT53C")
@@ -136,7 +136,7 @@ const Home = () => {
       if (!debouncedAuthor) return true;
       const usName =
         `${post.user.username}`.toLowerCase();
-      return usName === debouncedAuthor.toLowerCase();
+      return usName.includes(debouncedAuthor.toLowerCase());
     })
     .sort(
       (a, b) =>
@@ -168,7 +168,7 @@ const Home = () => {
                 <Form.Label>Filter by Author</Form.Label>
                 <Form.Control
                   type='text'
-                  placeholder='Enter author name (exact match)'
+                  placeholder='Enter author name(username)'
                   value={authorFilter}
                   onChange={(e) => setAuthorFilter(e.target.value)}
                 />
