@@ -2,7 +2,7 @@ import React, { useRef,useState,useEffect } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import {Form,Button,Container,Row,Col,Spinner,Card} from "react-bootstrap";
 import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { yupResolver, } from "@hookform/resolvers/yup";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/useAuth";
 import { useForm } from "react-hook-form";

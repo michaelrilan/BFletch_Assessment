@@ -3,6 +3,9 @@ const numericButtons = document.querySelectorAll('.btn-numeric');
 const operationButtons = document.querySelectorAll('.btn-symbol');
 let historyDict = {};
 const historyContainer = document.querySelector('.hist_container');
+const btnHistory = document.getElementById('btnHistory');
+const storedHistory = localStorage.getItem('calcHistory');
+let historyList = JSON.parse(localStorage.getItem('calcHistory')) || [];
 
 let operand1 = null;
 let operand2 = null;
@@ -22,18 +25,70 @@ btn.addEventListener('click', () => handleNumericClick(value));
 
 
 const addToHistory = (expression, result) => {
-    const timestamp = new Date().toISOString(); // ISO format for proper sorting
-    historyDict[timestamp] = { expression, result };
+    const timestamp = new Date().toISOString();
+    const entry = { timestamp, expression, result };
+
+    // Add new entry to the beginning
+    historyList.unshift(entry);
+    localStorage.setItem('calcHistory', JSON.stringify(historyList));
 
     const historyItem = document.createElement('li');
     historyItem.className = 'hist_op';
     historyItem.textContent = `${expression} = ${result}`;
-
-    // Insert at the top of the container
     historyContainer.insertBefore(historyItem, historyContainer.firstChild);
-    console.log(historyDict);
+
+    btnHistory.style.display = 'inline-block';
 };
 
+
+btnHistory.addEventListener('click', () => {
+    historyDict = {};
+    localStorage.removeItem('calcHistory');
+    historyContainer.innerHTML = '';
+    btnHistory.style.display = 'none';
+});
+
+
+// const loadHistory = () => {
+//     const storedHistory = localStorage.getItem('calcHistory');
+//     if (storedHistory) {
+//         btnHistory.style.display = 'inline-block';
+//         historyDict = JSON.parse(storedHistory);
+
+//         // Sort keys by most recent first
+//         const sortedKeys = Object.keys(historyDict).sort().reverse();
+//         sortedKeys.forEach(timestamp => {
+//             const { expression, result } = historyDict[timestamp];
+//             const historyItem = document.createElement('li');
+//             historyItem.className = 'hist_op';
+//             historyItem.textContent = `${expression} = ${result}`;
+//             historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+//         });
+//     } else {
+//         btnHistory.style.display = 'none';
+//     }
+// };
+
+const loadHistory = () => {
+    const storedHistory = localStorage.getItem('calcHistory');
+    if (storedHistory) {
+        btnHistory.style.display = 'inline-block';
+        historyDict = JSON.parse(storedHistory);
+            
+        // Convert object to array and sort by timestamp descending
+        const sortedEntries = Object.entries(historyDict)
+            .sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+        sortedEntries.forEach(([timestamp, { expression, result }]) => {
+            const historyItem = document.createElement('li');
+            historyItem.className = 'hist_op';
+            historyItem.textContent = `${expression} = ${result}`;
+            historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+        });
+    } else {
+        btnHistory.style.display = 'none';
+    }
+};
 
 const handleNumericClick = (num) => {
 if (display.value === '0' || shouldResetInput) {
@@ -80,6 +135,7 @@ btn.addEventListener('click', () => {
         }
     
     if (op === '=') {
+     
     if (operand1 !== null && operator) {
         const currentParts = display.value.split(operator);
         operand2 = parseFloat(currentParts[1]);
@@ -105,7 +161,7 @@ btn.addEventListener('click', () => {
 });
 });
 
-// Keyboard support (optional)
+// Keyboard support
 document.addEventListener('keydown', (e) => {
 const key = e.key;
 
@@ -119,6 +175,8 @@ if (['+', '-', '*', '/', '%'].includes(key)) {
 }
 
 if (key === '=' || key === 'Enter') {
+
+    
     if (operand1 !== null && operator) {
     const currentParts = display.value.split(operator);
     operand2 = parseFloat(currentParts[1]);
@@ -146,3 +204,5 @@ if (key === '.') {
 if (key === 'Escape') resetCalculator();
 
 });
+
+loadHistory();

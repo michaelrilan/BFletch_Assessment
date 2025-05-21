@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 type RegisterFormsInputs = {
   userName: string;
   password: string;
+  confirmPassword: string;
   firstname: string;
   lastname: string;
 };
@@ -19,6 +20,9 @@ type RegisterFormsInputs = {
 const validation = Yup.object().shape({
   userName: Yup.string().required("Username is required"),
   password: Yup.string().required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), undefined], "Passwords must match")
+    .required("Confirm Password is required"),
   firstname: Yup.string().required("Firstname is required"),
   lastname: Yup.string().required("Lastname is required"),
 });
@@ -29,7 +33,8 @@ const Register = () => {
     const {register, handleSubmit, formState: { errors },} = useForm<RegisterFormsInputs>({ resolver: yupResolver(validation) });
     const [loading, setLoading] = useState(false);
     const handleRegister = (form: RegisterFormsInputs) => {
-      registerUser(form.userName, form.password,form.firstname,form.lastname, setLoading);
+      const { userName, password, firstname, lastname } = form;
+      registerUser(userName, password, firstname, lastname, setLoading);
     };
   const navigate = useNavigate();
 
@@ -94,6 +99,20 @@ const Register = () => {
                       <Form.Control.Feedback type='invalid'>
                         {errors.password.message}
                       </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+
+                    <Form.Group className='mb-3' controlId='formConfirmPassword'>
+                      <Form.Label>Confirm Password</Form.Label>
+                      <Form.Control
+                        type='password'
+                        {...register("confirmPassword")}
+                        isInvalid={!!errors.confirmPassword}
+                      />
+                      {errors.confirmPassword && (
+                        <Form.Control.Feedback type='invalid'>
+                          {errors.confirmPassword.message}
+                        </Form.Control.Feedback>
                       )}
                     </Form.Group>
                     <div className="row mb-2">

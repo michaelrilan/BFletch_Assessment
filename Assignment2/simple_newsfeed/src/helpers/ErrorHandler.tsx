@@ -12,12 +12,15 @@ export const handleError = (error: any) => {
       for (let e in err?.data.errors) {
         toast.warning(err.data.errors[e][0]);
       }
-    } else if (err?.data) {
-      toast.warning(err.data);
-    } else if (err?.status == 403) {
+    }  else if (err?.status == 403) {
       toast.warning("Not Authorized. Please login again");
       window.history.pushState({}, "LoginPage", "/");
-    } else if (err) {
+    }else if (err?.status == 500) {
+        toast.warning("Internal Server Error");
+    }else if (err?.data) {
+      toast.warning(err.data);
+    }
+    else if (err) {
       toast.warning(err?.data);
     }
   }
